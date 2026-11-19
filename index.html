@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+  <title>Serene Memo - Responsive Note Editor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-highest": "#e3e2e0",
+            "secondary": "#8f4e00",
+            "on-tertiary-fixed": "#111f11",
+            "surface-variant": "#e3e2e0",
+            "inverse-surface": "#2f312f",
+            "surface-container-low": "#f4f3f0",
+            "on-primary-fixed": "#022113",
+            "on-tertiary-container": "#eeffe8",
+            "surface-container": "#efeeeb",
+            "on-secondary-fixed": "#2e1500",
+            "surface-container-high": "#e9e8e5",
+            "surface-dim": "#dbdad7",
+            "background": "#faf9f6",
+            "secondary-fixed-dim": "#ffb77a",
+            "tertiary-fixed": "#d7e7d1",
+            "primary-container": "#5b7a68",
+            "on-tertiary": "#ffffff",
+            "tertiary-container": "#687764",
+            "outline": "#727973",
+            "on-surface": "#1a1c1a",
+            "inverse-primary": "#adceb9",
+            "on-secondary": "#ffffff",
+            "error-container": "#ffdad6",
+            "error": "#ba1a1a",
+            "on-tertiary-fixed-variant": "#3c4b3a",
+            "on-background": "#1a1c1a",
+            "secondary-fixed": "#ffdcc2",
+            "on-primary-container": "#ecfff1",
+            "on-error-container": "#93000a",
+            "on-surface-variant": "#424844",
+            "on-secondary-fixed-variant": "#6d3a00",
+            "primary-fixed-dim": "#adceb9",
+            "tertiary": "#4f5e4d",
+            "on-primary-fixed-variant": "#2f4d3d",
+            "surface-bright": "#faf9f6",
+            "secondary-container": "#fea047",
+            "outline-variant": "#c2c8c2",
+            "tertiary-fixed-dim": "#bbcbb6",
+            "surface-container-lowest": "#ffffff",
+            "on-error": "#ffffff",
+            "on-secondary-container": "#6d3a00",
+            "inverse-on-surface": "#f2f1ee",
+            "on-primary": "#ffffff",
+            "primary": "#436150",
+            "surface-tint": "#476554",
+            "surface": "#faf9f6",
+            "primary-fixed": "#c8ebd5"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            "2xl": "1rem",
+            full: "9999px"
+          },
+          spacing: {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "gutter-sm": "0.75rem",
+            "space-md": "1rem",
+            "margin-sm": "1rem",
+            gutter: "1rem",
+            margin: "1.25rem",
+            "space-lg": "1.5rem",
+            "margin-lg": "1.5rem",
+            "space-xl": "2rem"
+          },
+          fontFamily: {
+            sans: ["Noto Sans KR", "Noto Sans", "sans-serif"]
+          },
+          fontSize: {
+            "label-xs": ["11px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "600" }],
+            "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "500" }],
+            "label-md": ["14px", { lineHeight: "18px", letterSpacing: "-0.005em", fontWeight: "500" }],
+            "body-sm": ["13px", { lineHeight: "20px", letterSpacing: "0em", fontWeight: "400" }],
+            "body-md": ["15px", { lineHeight: "24px", letterSpacing: "-0.005em", fontWeight: "400" }],
+            "body-lg": ["17px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "400" }],
+            "headline-sm": ["17px", { lineHeight: "24px", letterSpacing: "-0.005em", fontWeight: "600" }],
+            "headline-md": ["19px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "headline-lg-mobile": ["22px", { lineHeight: "28px", letterSpacing: "-0.015em", fontWeight: "700" }],
+            "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.015em", fontWeight: "700" }],
+            "display-lg": ["34px", { lineHeight: "42px", letterSpacing: "-0.02em", fontWeight: "700" }]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        width: 100%;
+        min-height: 100dvh;
+        margin: 0;
+        padding: 0;
+        background-color: #faf9f6;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    }
+    /* 모바일 스크롤바 숨김, 데스크톱에서는 자연스럽게 유지 */
+    @media (max-width: 768px) {
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-surface font-sans text-body-md text-on-surface antialiased flex flex-col min-h-screen">
+
+  <!-- Top Fixed Header (데스크톱에서 내부 콘텐츠 중앙 정렬) -->
+  <header class="fixed top-0 inset-x-0 z-50 pt-safe bg-surface/85 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_1px_8px_rgba(0,0,0,0.03)]">
+    <div class="max-w-4xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <button aria-label="뒤로 가기" class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface" onclick="history.back()" type="button">
+          <span class="material-symbols-outlined text-[22px] sm:text-[24px]">arrow_back_ios_new</span>
+        </button>
+        <img alt="Serene Memo Logo" class="h-7 sm:h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrAlNjrc4dc14Hz0pybVZPY0LUvCCsgCLLx54BmVGZvBsotsMRsUxonka-Hk8H4Ae18pNOD0gPp8IOKEqxe8A4FnjsAo0E6_ZYFHdOUVK6jDK1toQXHvbzqeaKUfx4optqZjWPpH6bHpaECjR-0qN64vJYu3HLwyyWjpSmdKYJSWbuexEW0JDvUZZXJcLlDiNj65r4xjBLEVye9yS62xL0pxdZXTn7VrY3zpxuMCNTE" />
+        <h1 class="text-headline-sm sm:text-headline-md text-on-surface ml-1">Note Editor</h1>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-3">
+        <!-- 데스크톱 전용 저장 상태 배지 -->
+        <div class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-tertiary">
+          <span class="material-symbols-outlined text-[15px]">cloud_done</span>
+          <span class="text-label-sm">모든 변경사항이 자동 저장됨</span>
+        </div>
+        <button aria-label="공유" class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant" type="button">
+          <span class="material-symbols-outlined text-[22px]">share</span>
+        </button>
+        <img alt="Profile" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-surface-container-high" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb9J2VWu57FxfatoPxq6SmRfXlvLzxGPM2YGOV2Bfg-MusW43kksrF9Pp0pHKNE6PAohPNnZHO1b2hDkyaCgz-sRXS582x8WFuw8ZsOAPqI80INiIvtgcp0g86A-0Gz1z-mqGzTuXhxNXl34yDMUvjgcQorqVdaXPeYbUd8mRXjSv_YGOQqCXcww72WnJKBLXId704kV4NcUYwAH7pemD6H-BuYoU57WoaQWAZHUg" />
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 flex flex-col w-full pt-16 pb-safe bg-surface">
+    <div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-6 flex flex-col">
+
+      <!-- Dynamic Action Header & Folder Context -->
+      <div class="flex items-center justify-between py-space-sm mb-space-xs">
+        <button class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors active:scale-95 text-on-surface" type="button">
+          <span class="text-xs sm:text-sm">💼</span>
+          <span class="text-label-sm sm:text-label-md font-medium text-on-surface truncate max-w-[140px] sm:max-w-[240px]">업무 &gt; 프로젝트</span>
+          <span class="material-symbols-outlined text-[16px] sm:text-[18px] text-outline">expand_more</span>
+        </button>
+
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button aria-label="노트 공유" class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant active:scale-90 transition-all" type="button">
+            <span class="material-symbols-outlined text-[19px]">share</span>
+          </button>
+          <button aria-label="더보기" class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant active:scale-90 transition-all" type="button">
+            <span class="material-symbols-outlined text-[20px]">more_horiz</span>
+          </button>
+          <button class="px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-full bg-primary hover:bg-primary-container text-on-primary text-label-md active:scale-95 transition-all shadow-sm flex items-center gap-1.5" id="btn-save" type="button">
+            <span>완료</span>
+            <span class="material-symbols-outlined text-[16px]">check</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Note Metadata & Auto-save Status Pill -->
+      <div class="flex items-center justify-between text-outline mb-space-sm sm:mb-space-md">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span class="text-label-xs sm:text-label-sm text-on-surface-variant">2025년 5월 18일 오후 2:45</span>
+          <span class="text-label-xs opacity-40">•</span>
+          <span class="text-label-xs sm:text-label-sm text-on-surface-variant" id="char-counter">1,420자</span>
+        </div>
+        <!-- 모바일 전용 자동저장 표시 (데스크톱은 상단 헤더에 표시) -->
+        <div class="sm:hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-low text-tertiary">
+          <span class="material-symbols-outlined text-[12px]">cloud_done</span>
+          <span class="text-label-xs">자동 저장됨</span>
+        </div>
+      </div>
+
+      <!-- Note Title Input -->
+      <div class="mb-space-sm sm:mb-space-md">
+        <textarea class="w-full bg-transparent resize-none outline-none text-headline-lg-mobile sm:text-headline-lg text-on-surface placeholder:text-outline-variant leading-tight" placeholder="제목을 입력하세요..." rows="2">2025 상반기 프로덕트 로드맵 &amp; 기획 노트</textarea>
+      </div>
+
+      <!-- Tags Horizontal Flow -->
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-space-lg sm:mb-space-xl">
+        <div class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-surface-container-high text-on-surface text-label-sm">
+          <span class="text-secondary font-medium">#</span>
+          <span>기획</span>
+        </div>
+        <div class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-surface-container-high text-on-surface text-label-sm">
+          <span class="text-secondary font-medium">#</span>
+          <span>로드맵</span>
+        </div>
+        <div class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-surface-container-high text-on-surface text-label-sm">
+          <span class="text-secondary font-medium">#</span>
+          <span>Q2</span>
+        </div>
+        <button class="inline-flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface-variant text-label-sm transition-colors active:scale-95" type="button">
+          <span class="material-symbols-outlined text-[15px]">add</span>
+          <span>태그 추가</span>
+        </button>
+      </div>
+
+      <!-- Note Body Content Canvas -->
+      <div class="flex flex-col space-y-space-md sm:space-y-space-lg pb-32 sm:pb-36">
+        
+        <!-- Subheading -->
+        <div class="flex items-center gap-2.5 pt-space-xs">
+          <div class="w-1.5 h-5 rounded-full bg-primary"></div>
+          <h2 class="text-headline-sm sm:text-headline-md text-on-surface">1. 핵심 목표 및 가치 제안</h2>
+        </div>
+
+        <!-- Editorial Paragraph -->
+        <p class="text-body-md sm:text-body-lg text-on-surface-variant leading-relaxed">
+          사용자의 일상 속 스쳐가는 생각과 파편화된 영감을 자연스럽고 스트레스 없이 캡처하는 디지털 사유의 공간을 만듭니다. 불필요한 시각적 소음을 배제하고, 부드러운 촉각적 피드백과 세이지 그린 톤으로 깊은 몰입과 정서적 안정을 전달합니다.
+        </p>
+
+        <!-- Responsive Split Section: 모바일 1열 -> 태블릿/PC 2열 배치 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-stretch">
+          
+          <!-- Visual Moodboard Card -->
+          <div class="relative w-full rounded-xl overflow-hidden bg-surface-container-low shadow-sm flex flex-col">
+            <div class="relative w-full h-40 sm:h-48 md:h-full min-h-[180px]">
+              <img alt="Serene minimal design workspace" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4oL9H15D78-ASw1G9OgTBVBo-5mSdWmCM3YCVSSF1CZYqCGn7m2OuRuCz8XDjAN6f5HKJunxFboeFEeEkurpDmqmvNrE_o0rbEnmyYx1Vi5Zs354sOHCdOSlL3_R2WUNnt5h5zw6jCyrKowNCplG_F76ekQh_SWSRiS_JVsQ54sXYIyvdqhPg-nhVslZ3ck6sv9toy1HMSQGpiV5ajN-D3aSN59B9USF-8x5zjH0" />
+              <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/70 via-transparent to-transparent"></div>
+              <div class="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between text-inverse-on-surface">
+                <span class="text-label-xs tracking-wide uppercase opacity-95">Design Inspiration Board</span>
+                <span class="text-label-xs bg-surface-container-lowest/25 backdrop-blur-md px-2.5 py-0.5 rounded-full">v1.4</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist Module -->
+          <div class="flex flex-col justify-between p-4 sm:p-5 rounded-xl bg-surface-container-low space-y-3 shadow-sm">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-label-sm text-primary font-semibold tracking-wider">MILESTONES</span>
+              <span class="text-label-xs text-on-surface-variant font-medium" id="milestone-counter">2 / 4 완료</span>
+            </div>
+
+            <div class="flex flex-col space-y-2.5" id="milestone-list">
+              <!-- Item 1 (Done) -->
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="mt-0.5 relative flex items-center justify-center">
+                  <input checked class="peer sr-only milestone-checkbox" type="checkbox" />
+                  <div class="w-5 h-5 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-xs transition-colors">
+                    <span class="material-symbols-outlined text-[15px]">check</span>
+                  </div>
+                </div>
+                <span class="text-body-md text-outline line-through select-none flex-1 transition-colors">모바일 인터랙션 가이드라인 수립</span>
+              </label>
+
+              <!-- Item 2 (Done) -->
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="mt-0.5 relative flex items-center justify-center">
+                  <input checked class="peer sr-only milestone-checkbox" type="checkbox" />
+                  <div class="w-5 h-5 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-xs transition-colors">
+                    <span class="material-symbols-outlined text-[15px]">check</span>
+                  </div>
+                </div>
+                <span class="text-body-md text-outline line-through select-none flex-1 transition-colors">세이지 그린 &amp; 웜 샌드 무드보드 확정</span>
+              </label>
+
+              <!-- Item 3 (Pending) -->
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="mt-0.5 relative flex items-center justify-center">
+                  <input class="peer sr-only milestone-checkbox" type="checkbox" />
+                  <div class="w-5 h-5 rounded-lg bg-surface-container-highest flex items-center justify-center text-transparent peer-checked:bg-primary peer-checked:text-on-primary transition-all">
+                    <span class="material-symbols-outlined text-[15px]">check</span>
+                  </div>
+                </div>
+                <span class="text-body-md text-on-surface select-none flex-1 transition-colors">사용자 사용성 테스트(UT) 5인 진행</span>
+              </label>
+
+              <!-- Item 4 (Pending) -->
+              <label class="flex items-start gap-3 cursor-pointer group">
+                <div class="mt-0.5 relative flex items-center justify-center">
+                  <input class="peer sr-only milestone-checkbox" type="checkbox" />
+                  <div class="w-5 h-5 rounded-lg bg-surface-container-highest flex items-center justify-center text-transparent peer-checked:bg-primary peer-checked:text-on-primary transition-all">
+                    <span class="material-symbols-outlined text-[15px]">check</span>
+                  </div>
+                </div>
+                <span class="text-body-md text-on-surface select-none flex-1 transition-colors">베타 피드백 수집 폼 배포</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Callout / Quote Box -->
+        <div class="relative overflow-hidden p-4 sm:p-5 rounded-xl bg-surface-container flex items-start gap-3.5 sm:gap-4 shadow-sm">
+          <div class="w-1 self-stretch rounded-full bg-secondary-container"></div>
+          <div class="flex-1">
+            <p class="text-body-md sm:text-body-lg italic text-on-surface font-medium leading-snug">
+              “간결함은 불필요한 것을 덜어내는 것에서 시작된다.”
+            </p>
+            <span class="block mt-1.5 text-label-xs sm:text-label-sm text-on-surface-variant font-normal">— 디자인 원칙 중 발췌</span>
+          </div>
+          <span class="material-symbols-outlined text-secondary-container opacity-40 text-[28px] sm:text-[34px] self-end">format_quote</span>
+        </div>
+
+        <!-- Active Text Cursor Line Area -->
+        <div class="pt-space-xs flex items-center gap-1.5 text-on-surface-variant">
+          <span class="w-0.5 h-5 sm:h-6 bg-primary animate-pulse inline-block"></span>
+          <span class="text-body-md sm:text-body-lg text-outline-variant">새로운 생각을 자유롭게 이어 적으세요...</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Floating Format Toolbar (화면 크기에 맞춰 유연하게 확장) -->
+    <div class="fixed bottom-4 sm:bottom-6 inset-x-4 z-40">
+      <div class="max-w-md sm:max-w-xl mx-auto flex items-center justify-between px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-surface-container-lowest/90 backdrop-blur-xl border border-outline-variant/30 shadow-xl">
+        <!-- Formatting Buttons -->
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-surface-container text-on-surface-variant active:scale-90 transition-all" title="헤딩" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">title</span>
+          </button>
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-surface-container text-primary font-bold active:scale-90 transition-all" title="볼드체" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">format_bold</span>
+          </button>
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-surface-container text-on-surface-variant active:scale-90 transition-all" title="체크리스트" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">check_box</span>
+          </button>
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-surface-container text-on-surface-variant active:scale-90 transition-all" title="순서 목록" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">format_list_numbered</span>
+          </button>
+        </div>
+
+        <div class="w-px h-5 sm:h-6 bg-surface-container-highest"></div>
+
+        <!-- Media & Audio Attachment Buttons -->
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-surface-container text-on-surface-variant active:scale-90 transition-all" title="이미지 첨부" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">image</span>
+          </button>
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center hover:bg-surface-container text-on-surface-variant active:scale-90 transition-all" title="링크 삽입" type="button">
+            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">link</span>
+          </button>
+          <button class="w-9 h-9 sm:w-10 sm:h-10 sm:px-3.5 sm:w-auto rounded-xl flex items-center justify-center gap-1.5 bg-secondary-fixed hover:bg-secondary-fixed-dim text-on-secondary-fixed active:scale-90 transition-all" id="record-trigger" title="오디오 녹음" type="button">
+            <span class="material-symbols-outlined text-[19px] sm:text-[20px]">mic</span>
+            <span class="hidden sm:inline text-label-sm font-semibold">음성 메모</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Dynamic feedback on Done click
+    const saveBtn = document.getElementById('btn-save');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        saveBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">done_all</span><span>저장완료</span>';
+        saveBtn.classList.remove('bg-primary');
+        saveBtn.classList.add('bg-primary-container');
+        setTimeout(() => {
+          saveBtn.innerHTML = '<span>완료</span><span class="material-symbols-outlined text-[16px]">check</span>';
+          saveBtn.classList.remove('bg-primary-container');
+          saveBtn.classList.add('bg-primary');
+        }, 1800);
+      });
+    }
+
+    // Interactive Checklist check toggle & counter update
+    const checkInputs = document.querySelectorAll('.milestone-checkbox');
+    const milestoneCounter = document.getElementById('milestone-counter');
+
+    function updateMilestoneCount() {
+      const total = checkInputs.length;
+      const checked = document.querySelectorAll('.milestone-checkbox:checked').length;
+      if (milestoneCounter) {
+        milestoneCounter.textContent = `${checked} / ${total} 완료`;
+      }
+    }
+
+    checkInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const labelText = e.target.closest('label').querySelector('span.text-body-md');
+        const boxContainer = e.target.parentElement.querySelector('div');
+        if (e.target.checked) {
+          labelText.classList.add('line-through', 'text-outline');
+          labelText.classList.remove('text-on-surface');
+          boxContainer.classList.remove('bg-surface-container-highest', 'text-transparent');
+          boxContainer.classList.add('bg-primary', 'text-on-primary');
+        } else {
+          labelText.classList.remove('line-through', 'text-outline');
+          labelText.classList.add('text-on-surface');
+          boxContainer.classList.remove('bg-primary', 'text-on-primary');
+          boxContainer.classList.add('bg-surface-container-highest', 'text-transparent');
+        }
+        updateMilestoneCount();
+      });
+    });
+  </script>
+</body>
+</html>
